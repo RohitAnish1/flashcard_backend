@@ -1,21 +1,31 @@
 import express from 'express';
-import mysql from 'mysql'; 
+import mysql from 'mysql';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import dotenv from 'dotenv';
 
+// Load environment variables from .env file
+dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
 const db = mysql.createConnection({
-  host: 'localhost',
-  user: 'root',
-  password: 'password',
-  database: 'test',
+  host: process.env.DB_HOST,         // Use environment variables
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: process.env.DB_PORT,         // Optionally set the port if needed
 });
 
-db.connect();
+db.connect((err) => {
+  if (err) {
+    console.error('Error connecting to the database:', err);
+    return;
+  }
+  console.log('Connected to the database');
+});
 
 app.get('/api/flashcards', (req, res) => {
   db.query('SELECT * FROM flashcards', (err, results) => {
